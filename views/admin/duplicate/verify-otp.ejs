@@ -1,0 +1,43 @@
+<%- include('partials/admin/auth-header', { title: 'Verify Admin Email' }) %>
+
+  <h1 class="admin-title">Verify Your Email</h1>
+  <p class="admin-subtitle">
+    Enter the 6‑digit code sent to <strong><%= email %></strong>.
+  </p>
+
+  <% if (typeof error !== 'undefined') { %>
+    <div class="alert alert-danger py-2"><%= error %></div>
+  <% } %>
+  <% if (typeof success !== 'undefined') { %>
+    <div class="alert alert-success py-2"><%= success %></div>
+  <% } %>
+
+  <form action="/admin/verify-otp" method="POST">
+    <input type="hidden" name="email" value="<%= email %>">
+
+    <div class="form-group">
+      <label for="otp">Verification code</label>
+      <input
+        type="text"
+        class="form-control text-center"
+        id="otp"
+        name="otp"
+        maxlength="6"
+        placeholder="Enter 6-digit OTP"
+        required
+      >
+    </div>
+
+    <button type="submit" class="btn btn-dark btn-block mt-2">
+      Verify Email
+    </button>
+  </form>
+
+  <div class="mt-3 text-center">
+    <span class="form-text-sm">
+      Didn’t receive the code?
+      <a href="/admin/resend-otp?email=<%= encodeURIComponent(email) %>">Resend OTP</a>
+    </span>
+  </div>
+
+<%- include('partials/admin/auth-footer') %>

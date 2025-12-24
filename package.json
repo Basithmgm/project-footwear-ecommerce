@@ -1,0 +1,41 @@
+{
+  "name": "footware-ecommerce",
+  "version": "1.0.0",
+  "description": "Full-stack footwear e-commerce site with auth and admin panel",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Basithmgm/project-footwear-ecommerce.git"
+  },
+  "keywords": [
+    "ecommerce",
+    "mern",
+    "express",
+    "mongodb"
+  ],
+  "author": "Abdul basith K",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Basithmgm/project-footwear-ecommerce/issues"
+  },
+  "homepage": "https://github.com/Basithmgm/project-footwear-ecommerce#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "dependencies": {
+	"nodemailer": "^6.9.0",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "express-session": "^1.18.2",
+    "mongoose": "^9.0.2",
+    "nodemailer": "^7.0.11"
+  },
+  "type": "commonjs"
+}

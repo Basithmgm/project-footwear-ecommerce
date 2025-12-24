@@ -1,0 +1,15 @@
+{
+  "files.associations": {
+    "*.ejs": "ejs"
+  },
+  "eslint.validate": ["javascript", "ejs"],
+  "[ejs]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "never"
+    },
+    "editor.defaultFormatter": "sourabhkv.ejs"
+  },
+  "emmet.includeLanguages": {
+    "ejs": "html"
+  }
+}

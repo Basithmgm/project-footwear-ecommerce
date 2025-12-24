@@ -1,0 +1,193 @@
+<%- include('layout-header'); %>
+
+<div class="admin-topbar">
+  <div>
+    <div class="admin-topbar-title">Users</div>
+    <div class="small-text">Manage all registered users of the store.</div>
+  </div>
+</div>
+
+<!-- Search + sort -->
+<div class="card-box">
+  <form class="form-row align-items-end" method="get" action="/admin/users">
+    <div class="form-group col-md-4">
+      <label class="mb-1">Search users</label>
+      <div class="input-group">
+        <input
+          type="text"
+          name="q"
+          class="form-control"
+          placeholder="Search by name, email, phone"
+          value="<%= search %>"
+        >
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn">
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group col-md-3">
+      <label class="mb-1">Sort</label>
+      <select name="sort" class="custom-select" onchange="this.form.submit()">
+        <option value="latest" <%= sort === 'latest' ? 'selected' : '' %>>Latest first</option>
+        <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>Oldest first</option>
+      </select>
+    </div>
+
+    <div class="form-group col-md-2">
+      <button type="submit" class="btn btn-dark btn-block">Apply</button>
+    </div>
+
+    <div class="form-group col-md-3 text-md-right">
+      <label class="mb-1 d-block">Total users</label>
+      <p class="mb-0 small-text"><strong><%= totalUsers %></strong></p>
+    </div>
+  </form>
+</div>
+
+<!-- Users table -->
+<div class="card-box">
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+      <thead class="thead-light">
+        <tr>
+          <th>#</th>
+          <th>User</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (users && users.length > 0) { %>
+          <% users.forEach((u, index) => { %>
+            <tr>
+              <td><%= (currentPage - 1) * 10 + index + 1 %></td>
+              <td>
+                <div>
+                  <strong><%= u.name %></strong><br>
+                  <small class="text-muted">ID: <%= u._id %></small>
+                </div>
+              </td>
+              <td><%= u.email %></td>
+              <td><%= u.phone || '-' %></td>
+              <td>
+                <span class="badge badge-outline-primary text-capitalize">
+                  <%= u.role && u.role.roleName ? u.role.roleName : 'user' %>
+                </span>
+              </td>
+              <td>
+                <% if (u.isBlocked || u.status === 'blocked') { %>
+                  <span class="badge badge-danger">Blocked</span>
+                <% } else { %>
+                  <span class="badge badge-success">Active</span>
+                <% } %>
+              </td>
+              <td><%= u.createdAt ? u.createdAt.toLocaleDateString() : '-' %></td>
+              <td class="text-right">
+                <form
+                  method="post"
+                  action="/admin/users/<%= u._id %>/toggle-block"
+                  class="d-inline-block toggle-block-form"
+                  data-username="<%= u.name %>"
+                  data-block="<%= u.isBlocked || u.status === 'blocked' ? 'false' : 'true' %>"
+                >
+                  <button type="button"
+                    class="btn btn-sm <%= u.isBlocked || u.status === 'blocked' ? 'btn-success' : 'btn-warning' %>">
+                    <%= u.isBlocked || u.status === 'blocked' ? 'Unblock' : 'Block' %>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" class="text-center text-muted py-4">
+              No users found.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <span class="small-text">
+      Page <strong><%= currentPage %></strong> of <strong><%= totalPages %></strong>
+    </span>
+    <nav>
+      <ul class="pagination mb-0">
+        <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+          <a class="page-link"
+            href="/admin/users?page=<%= currentPage - 1 %>&q=<%= encodeURIComponent(search) %>&sort=<%= sort %>">
+            Previous
+          </a>
+        </li>
+
+        <% for (let p = 1; p <= totalPages; p++) { %>
+          <li class="page-item <%= currentPage === p ? 'active' : '' %>">
+            <a class="page-link"
+              href="/admin/users?page=<%= p %>&q=<%= encodeURIComponent(search) %>&sort=<%= sort %>">
+              <%= p %>
+            </a>
+          </li>
+        <% } %>
+
+        <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+          <a class="page-link"
+            href="/admin/users?page=<%= currentPage + 1 %>&q=<%= encodeURIComponent(search) %>&sort=<%= sort %>">
+            Next
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  // Clear search button
+  document.getElementById('clearSearchBtn')?.addEventListener('click', () => {
+    const input = document.querySelector('input[name="q"]');
+    if (input) {
+      input.value = '';
+    }
+    const form = document.querySelector('form[action="/admin/users"]');
+  if (form) form.submit();
+  });
+
+  // Block / unblock confirmation
+  document.querySelectorAll('.toggle-block-form').forEach(form => {
+    const button = form.querySelector('button');
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      const username = form.dataset.username;
+      const willBlock = form.dataset.block === 'true';
+
+      Swal.fire({
+        title: willBlock ? 'Block user?' : 'Unblock user?',
+        text: willBlock
+          ? `Are you sure you want to block "${username}"?`
+          : `Are you sure you want to unblock "${username}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: willBlock ? 'Yes, block' : 'Yes, unblock',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
+    });
+  });
+</script>
+
+<%- include('layout-footer'); %>

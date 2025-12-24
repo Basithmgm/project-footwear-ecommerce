@@ -1,0 +1,34 @@
+    </div> <!-- /.admin-wrapper -->
+
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+      (function () {
+        // For authenticated admin pages only.
+        if (window.history && window.history.pushState) {
+          // Push a new state so the current page is at the top of history
+          window.history.pushState({ noBack: true }, '', window.location.href);
+
+          window.addEventListener('popstate', function (event) {
+            // When user presses back, immediately push them forward again
+            if (event.state && event.state.noBack) {
+              window.history.pushState({ noBack: true }, '', window.location.href);
+              return;
+            }
+
+            // Fallback: if state is missing (some browsers), hard redirect to same URL
+            window.location.replace(window.location.href);
+          });
+        }
+
+        // Extra: prevent browser caching of this page
+        const meta = document.createElement('meta');
+        meta.httpEquiv = 'Cache-Control';
+        meta.content = 'no-store, no-cache, must-revalidate, max-age=0';
+        document.head.appendChild(meta);
+      })();
+    </script>
+  </body>
+</html>
